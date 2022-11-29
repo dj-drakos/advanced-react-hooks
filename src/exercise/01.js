@@ -1,6 +1,6 @@
 import * as React from 'react'
-const countReducer = (state, { count }) => {
-  return { ...state, count }
+const countReducer = (state, ...action) => {
+  return { ...state, ...action }
 }
 
 function Counter({initialCount = 0, step = 1}) {
