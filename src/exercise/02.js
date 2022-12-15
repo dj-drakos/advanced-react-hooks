@@ -7,18 +7,15 @@ import {
   PokemonErrorBoundary,
 } from '../pokemon'
 
-function useAsync(asyncCallback) {
+function useAsync(initialState) {
   const [state, dispatch] = React.useReducer(asyncReducer, {
     status: 'idle',
     data: null,
     error: null,
+    ...initialState,
   })
 
-  React.useEffect(() => {
-    const promise = asyncCallback()
-    if (!promise) {
-      return
-    }
+  const run = React.useCallback(promise => {
     dispatch({type: 'pending'})
     promise.then(
       data => {
@@ -28,7 +25,7 @@ function useAsync(asyncCallback) {
         dispatch({type: 'rejected', error})
       },
     )
-  }, [asyncCallback])
+  } , [])
 
   function asyncReducer(state, action) {
     switch (action.type) {
@@ -47,19 +44,21 @@ function useAsync(asyncCallback) {
     }
   }
 
-  return state
+  return { ...state, run}
 }
 
-
 function PokemonInfo({pokemonName}) {
-  const asyncCallback = React.useCallback(() => {
+  const { data, status, error, run } = useAsync({ status: pokemonName ? 'pending' : 'idle' })
+
+  React.useEffect(() => {
     if (!pokemonName) {
       return
     }
-    return fetchPokemon(pokemonName)
-  }, [pokemonName])
+    const pokemonPromise = fetchPokemon(pokemonName)
+    run(pokemonPromise)
+  }, [pokemonName, run])
 
-  const {data, status, error} = useAsync(asyncCallback)
+
 
   switch (status) {
     case 'idle':
