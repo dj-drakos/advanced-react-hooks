@@ -1,7 +1,5 @@
 // useDebugValue: useMedia
 // http://localhost:3000/isolated/exercise/06.js
-
-import { format } from 'prettier'
 import * as React from 'react'
 
 function useMedia(query, initialState = false) {
